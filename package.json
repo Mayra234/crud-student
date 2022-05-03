@@ -1,8 +1,8 @@
 {
-  "name": "crud.student",
+  "name": "crud-student",
   "version": "1.0.0",
   "scripts": {
-    "pepito": ""
+    "server": "json-server --watch server/db.json --delay 2000 --port 4000"
   },
   "devDependencies": {
     "json-server": "^0.17.0"

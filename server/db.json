@@ -1,0 +1,58 @@
+{
+  "students": [
+    {
+      "id": 1,
+      "name": "Pedro",
+      "lastName": "Perez",
+      "age": 18,
+      "grade": "11°",
+      "livingRoom": "11B",
+      "birthDate": "2004-10-24"
+    },
+    {
+      "id": 2,
+      "name": "Mayra",
+      "lastName": "Diavanera",
+      "age": 10,
+      "grade": "5°",
+      "livingRoom": "5A",
+      "birthDate": "2012-11-08"
+    },
+    {
+      "id": 3,
+      "name": "Luna",
+      "lastName": "Herrera",
+      "age": 14,
+      "grade": "9°",
+      "livingRoom": "9B",
+      "birthDate": "2008-12-14"
+    },
+    {
+      "name": "Jean",
+      "lastName": "Montenegro",
+      "age": 18,
+      "grade": "10°",
+      "livingRoom": "10B",
+      "birthDate": "2004-10-13",
+      "id": 4
+    },
+    {
+      "name": "Luna",
+      "lastName": "Díaz",
+      "age": "19",
+      "grade": "11°",
+      "livingRoom": "11A",
+      "birthDate": "2003-05-04",
+      "id": 5
+    },
+    {
+      "name": "Mario",
+      "lastName": "Diavanera",
+      "age": "11",
+      "grade": "6°",
+      "livingRoom": "6B",
+      "birthDate": "2010-02-08",
+      "id": 6
+    }
+  ]
+}

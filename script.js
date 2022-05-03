@@ -1,12 +1,16 @@
+let students = [];
+const studentApi = useStudentApi();
 const studentForm = document.getElementById('student-form');
 const fields = document.querySelectorAll('#student-form .form-field');
 const studentTbody = document.getElementById('student-table');
 const contentButtons = document.getElementById('content-buttons');
 const addButton = document.getElementById('add-student');
+const loader = document.getElementById('loader');
+
 addButton.addEventListener('click', studentFormAction);
 
 let studentFormMode = 'create';
-let studentIndex = undefined;
+let studentId = undefined;
 
 let currentStudent = {
   name: '',
@@ -16,6 +20,19 @@ let currentStudent = {
   livingRoom: '',
   birthDate: '',
 };
+
+function handlerLoader(status) {
+  switch (status) {
+    case 'show':
+      loader.style.display = 'flex';
+      break;
+    case 'hide':
+      loader.style.display = 'none';
+      break;
+    default:
+      break;
+  }
+}
 
 function validate(event) {
   const { name, value } = event.target;
@@ -69,7 +86,7 @@ function cancelStudentActionButton() {
       cancelButton.innerText = 'Cancelar';
       cancelButton.addEventListener('click', () => {
         cancelButton.remove();
-        studentForMode = 'create';
+        studentFormMode = 'create';
         studentForm.reset();
         changeActionStudentButton();
       });
@@ -80,32 +97,49 @@ function cancelStudentActionButton() {
   }
 }
 
-function createStudent() {
-  students.push(Object.assign({}, currentStudent));
+async function createStudent() {
+  handlerLoader('show');
+  const student = await studentApi.create(currentStudent);
+  students.push({ ...student });
   listStudents();
   studentForm.reset();
+  handlerLoader('hide');
 }
 
-function updateStudent() {
-  students[studentIndex] = Object.assign({}, currentStudent);
+async function updateStudent() {
+  handlerLoader('show');
+  const student = await studentApi.update(studentId, currentStudent);
+  students = students.map((item) => {
+    if (item.id === studentId) {
+      return { ...student };
+    } else {
+      return item;
+    }
+  });
+
   listStudents();
   studentForm.reset();
   studentFormMode = 'create';
   changeActionStudentButton();
   cancelStudentActionButton();
+  handlerLoader('hide');
 }
 
-function deleteStudent(index) {
-  students = students.filter((_, i) => {
-    return i !== index;
+async function deleteStudent(id) {
+  handlerLoader('show');
+  await studentApi.remove(id);
+  const students = students.filter((student) => {
+    return student.id !== id;
   });
   listStudents();
+  handlerLoader('hide');
 }
 
-function loadStudentInForm(index) {
+function loadStudentInForm(id) {
   studentFormMode = 'update';
-  studentIndex = index;
-  currentStudent = Object.assign({}, students[index]);
+  studentId = id;
+  currentStudent = students.find((student) => student.id === id);
+
   fields.forEach((field) => {
     field.value = currentStudent[field.name];
   });
@@ -116,25 +150,30 @@ function loadStudentInForm(index) {
 const modalHtmlElement = document.getElementById('view-student');
 const boostrapModal = new bootstrap.Modal(modalHtmlElement);
 
-function showStudent(index) {
+async function showStudent(id) {
+  handlerLoader('show');
+  const student = await studentApi.read(id);
   const modalTitle = document.querySelector('#view-student .modal-title');
   const modalBody = document.querySelector('#view-student .modal-body');
   boostrapModal.show();
   modalBody.innerHTML = `
       <ul>
-        <li><b>Nombre:</b> ${students[index].name}</li>
-        <li><b>Apellido:</b> ${students[index].lastName}</li>
-        <li><b>Edad:</b> ${students[index].age}</li>
-        <li><b>Grado:</b> ${students[index].grade}</li>
-        <li><b>Curso:</b> ${students[index].livingRoom}</li>
-        <li><b>Fecha de nacimiento:</b> ${students[index].birthDate}</li>
+        <li><b>Nombre:</b> ${student.name}</li>
+        <li><b>Apellido:</b> ${student.lastName}</li>
+        <li><b>Edad:</b> ${student.age}</li>
+        <li><b>Grado:</b> ${student.grade}</li>
+        <li><b>Curso:</b> ${student.livingRoom}</li>
+        <li><b>Fecha de nacimiento:</b> ${student.birthDate}</li>
     </ul>
       `;
-  modalTitle.innerText = students[index].name;
+  modalTitle.innerText = student.name;
+  handlerLoader('hide');
 }
 
-function listStudents() {
+async function listStudents(firstLoad) {
+  handlerLoader('show');
   studentTbody.innerHTML = '';
+  if (firstLoad) students = await studentApi.list();
 
   students.forEach((student, index) => {
     const row = document.createElement('tr');
@@ -150,24 +189,25 @@ function listStudents() {
                 <button
                     type="button"
                     class="btn btn-primary"
-                    onclick="loadStudentInForm(${index})">
+                    onclick="loadStudentInForm(${student.id})">
                     Editar
                     </button>
                 <button
                     type="button"
                     class="btn btn-info text-white"
-                    onclick="showStudent(${index})">
+                    onclick="showStudent(${student.id})">
                     Ver registro
                     </button>
                 <button
                     type="button"
                     class="btn btn-danger"
-                    onclick="deleteStudent(${index})">
+                    onclick="deleteStudent(${student.id})">
                     Eliminar
                     </button>
             </td>
         `;
     studentTbody.appendChild(row);
   });
+  handlerLoader('hide');
 }
-listStudents();
+listStudents(true);
